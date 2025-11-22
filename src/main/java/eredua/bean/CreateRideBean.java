@@ -16,14 +16,14 @@ import jakarta.inject.Named;
 @Named("createRideBean")
 @SessionScoped
 public class CreateRideBean implements Serializable {
-
+	private Ride ride;
 	private String origin;
 	private String destination;
 	private Date date;
 	private Integer seats;
 	private float price;
 	private String datua; 
-	//private BLFacade facadeBL;
+	private BLFacade facadeBL;
 	private String driverEmail = "driver1@gmail.com";
 
 	public CreateRideBean() {
@@ -62,7 +62,7 @@ public class CreateRideBean implements Serializable {
 //				date == null || seats == null || seats < 1) {
 //				FacesContext.getCurrentInstance().addMessage(null,
 //					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "All fields are required and must be valid"));
-//				return null;
+//				
 //			}
 //			
 //			// Ride-a sortu
@@ -78,20 +78,20 @@ public class CreateRideBean implements Serializable {
 //			
 //			System.out.println("Bidaia sortu da: " + origin + " -> " + destination);
 //			
-//			return null; // Orrialde berean geratu
+//			
 //			
 //		} catch (RideMustBeLaterThanTodayException e) {
 //			FacesContext.getCurrentInstance().addMessage(null,
 //				new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Date must be later than today"));
-//			return null;
+//		
 //		} catch (RideAlreadyExistException e) {
 //			FacesContext.getCurrentInstance().addMessage(null,
 //				new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Ride already exists"));
-//			return null;
+//			
 //		} catch (Exception e) {
 //			FacesContext.getCurrentInstance().addMessage(null,
 //				new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Unexpected error: " + e.getMessage()));
-//			return null;
+//			
 //		}
 	}
 
@@ -120,7 +120,7 @@ public class CreateRideBean implements Serializable {
 		this.origin = null;
 		this.destination = null;
 		this.seats = null;
-		this.price = 0;
+		this.price = (Float) null;
 		this.date = new Date();
 		this.datua = null;
 	}
