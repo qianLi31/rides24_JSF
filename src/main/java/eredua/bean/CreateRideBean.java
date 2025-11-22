@@ -13,31 +13,19 @@ public class CreateRideBean implements Serializable {
 	private String origin;
 	private String destination;
 	private Date date;
+	private Integer seats;
+	private Double price;
 	
-//    private String izena;
-//    private String pasahitza;
-//    private String origin;
-//    private String destination;
-//    private Integer seats;
-//    private Double price;
-//    private Date date;
 //    private Ride ride;
 
     public CreateRideBean() {
     }
-
-    // Getter eta setter guztiak
-//    public String getIzena() { return izena; }
-//    public void setIzena(String izena) { this.izena = izena; }
-//    
-//    public String getPasahitza() { return pasahitza; }
-//    public void setPasahitza(String pasahitza) { this.pasahitza = pasahitza; }
-//    
-//    public Integer getSeats() { return seats; }
-//    public void setSeats(Integer seats) { this.seats = seats; }
-//    
-//    public Double getPrice() { return price; }
-//    public void setPrice(Double price) { this.price = price; }
+    
+    public Integer getSeats() { return seats; }
+    public void setSeats(Integer seats) { this.seats = seats; }
+    
+    public Double getPrice() { return price; }
+    public void setPrice(Double price) { this.price = price; }
 //    
     public String getOrigin() { return origin; }
     public void setOrigin(String origin) { this.origin = origin; }
@@ -45,7 +33,6 @@ public class CreateRideBean implements Serializable {
     public String getDestination() { return destination; }
     public void setDestination(String destination) { this.destination = destination; }
     
-
     
     public Date getDate() { return date; }
     public void setDate(Date date) { this.date = date; }

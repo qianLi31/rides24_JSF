@@ -1,55 +1,77 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui">
+<ui:composition>
 
-<h:head>
-    <title>Create Ride</title>
-</h:head>
+<f:view>
+	<h:head>
+		<title>CREATE RIDE</title>
+	</h:head>
 
-<h:body>
-<h:form id="form">
+	<h:body>
+		<h:form id="nireForm">
+			<h3>CREATE RIDE</h3>
+			<table>
+				<tr>
+					<td>Depart City:</td>
+					<td>
+						<h:inputText id="departCity" value="#{createRideBean.origin}">
+							<f:validateRegex pattern="^([a-z]|[A-Z])$" />
+						</h:inputText>
+					</td>
+					<td><h:message for="izen" style="color:red" /></td>
+				</tr>
+				<tr>
+					<td>Arrival City:</td>
+					<td>
+						<h:inputText id="arrivalCity"  value="#{createRideBean.destination}">
+							<f:validateRegex pattern="^([a-z]|[A-Z])$" />
+						</h:inputText>
+					</td>
+					<td><h:message for="pass" style="color:red" /></td>
+				</tr>
+				<tr>
+					<td>Number of seats: </td>
+					<td>
+						<h:inputText id="seats"  value="#{createRideBean.seats}">
+							<f:validateLongRange minimum="1" maximum="500" />
+						</h:inputText>
+					</td>
+					<td><h:message for="pass" style="color:red" /></td>
+				</tr>
+				<tr>
+					<td>Price:</td>
+					<td>
+						<h:inputText id="price"  value="#{createRideBean.price}">
+							<f:validateLongRange minimum="1" maximum="500" />
+						</h:inputText>
+					</td>
+					<td><h:message for="pass" style="color:red" /></td>
+				</tr>
+				<tr>
+					<td>Date:</td>
+					<td>
+						<p:calendar id="data" value="#{createRideBean.date}" navigator="true" mode="inline" />
+					</td>
+				</tr>
+				
+				
+			</table>
+			<p>
+				<h:commandButton value="Create Ride" action="#{Login.egiaztatu}" />
+				<h:commandButton value="Close" action="error" immediate="true"
+					onclick="if (!confirm('Ziur zaude?')) return false" />
+			</p>
 
-    <h2>Create Ride</h2>
-
-    <!-- Mezua -->
-    <h:messages id="msgs" style="color:red" />
-
-    <h:panelGrid columns="2" columnClasses="label,value" cellpadding="5">
-
-        <!-- ORIGIN -->
-        <h:outputLabel for="origin" value="Leaving from:" />
-        <p:inputText id="origin" value="#{createRideBean.origin}" />
-
-        <!-- DESTINATION -->
-        <h:outputLabel for="destination" value="Going to:" />
-        <p:inputText id="destination" value="#{createRideBean.destination}" />
-
-        <!-- SEATS -->
-        <h:outputLabel for="seats" value="Number of seats:" />
-        <p:inputText id="seats" value="#{createRideBean.seats}" />
-
-        <!-- PRICE -->
-        <h:outputLabel for="price" value="Price:" />
-        <p:inputText id="price" value="#{createRideBean.price}" />
-
-        <!-- DATE -->
-        <h:outputLabel for="date" value="Ride date:" />
-        <p:datePicker id="date" value="#{createRideBean.date}" showIcon="true" />
-
-    </h:panelGrid>
-
-    <br/>
-
-    <p:commandButton value="Create Ride"
-                     action="#{createRideBean.createRide}"
-                     update="@form" />
-
-    <p:commandButton value="Close"
-                     action="#{createRideBean.close}"
-                     update="@form" />
-
-</h:form>
-</h:body>
+			<h:messages id="mezuak" style="color:blue" />
+		</h:form>
+	</h:body>
+</f:view>
+ </ui:composition>
 </html>
