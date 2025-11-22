@@ -22,19 +22,19 @@
 					<td>Depart City:</td>
 					<td>
 						<h:inputText id="departCity" value="#{createRideBean.origin}">
-							<f:validateRegex pattern="^([a-z]|[A-Z])$" />
+							<f:validateRegex pattern="^[a-zA-ZñÑçÇáéíóúÁÉÍÓÚ\s]+$" />
 						</h:inputText>
 					</td>
-					<td><h:message for="izen" style="color:red" /></td>
+					<td><h:message for="departCity" style="color:red" /></td>
 				</tr>
 				<tr>
 					<td>Arrival City:</td>
 					<td>
 						<h:inputText id="arrivalCity"  value="#{createRideBean.destination}">
-							<f:validateRegex pattern="^([a-z]|[A-Z])$" />
+							<f:validateRegex pattern="^[a-zA-ZñÑçÇáéíóúÁÉÍÓÚ\s]+$" />
 						</h:inputText>
 					</td>
-					<td><h:message for="pass" style="color:red" /></td>
+					<td><h:message for="arrivalCity" style="color:red" /></td>
 				</tr>
 				<tr>
 					<td>Number of seats: </td>
@@ -43,7 +43,7 @@
 							<f:validateLongRange minimum="1" maximum="500" />
 						</h:inputText>
 					</td>
-					<td><h:message for="pass" style="color:red" /></td>
+					<td><h:message for="seats" style="color:red" /></td>
 				</tr>
 				<tr>
 					<td>Price:</td>
@@ -52,7 +52,7 @@
 							<f:validateLongRange minimum="1" maximum="500" />
 						</h:inputText>
 					</td>
-					<td><h:message for="pass" style="color:red" /></td>
+					<td><h:message for="price" style="color:red" /></td>
 				</tr>
 				<tr>
 					<td>Date:</td>
@@ -60,16 +60,28 @@
 						<p:calendar id="data" value="#{createRideBean.date}" navigator="true" mode="inline" />
 					</td>
 				</tr>
-				
-				
 			</table>
+			
 			<p>
 				<h:commandButton value="Create Ride" action="#{Login.egiaztatu}" />
-				<h:commandButton value="Close" action="error" immediate="true"
-					onclick="if (!confirm('Ziur zaude?')) return false" />
+				<h:commandButton value="TEST" action="#{createRideBean.test}">
+					<f:ajax execute="@form" render="sartutakoDatuak mezuak" />
+				</h:commandButton>
 			</p>
 
-			<h:messages id="mezuak" style="color:blue" />
+			<!-- Datuak erakusteko - WEB-ean agertuko da -->
+			<h:panelGroup id="sartutakoDatuak">
+				<h:outputText value="Created Ride: " 
+					style="font-weight: bold; display: block; margin-top: 15px;" 
+					rendered="#{not empty createRideBean.datua}" />
+				<h:outputText value="#{createRideBean.datua}" 
+					style="display: block; margin-top: 10px; padding: 10px; 
+					       background-color: #f0f8ff; border: 2px solid #4682b4; 
+					       border-radius: 5px; color: #2e8b57; font-size: 14px;" 
+					rendered="#{not empty createRideBean.datua}" />
+			</h:panelGroup>
+
+			<h:messages id="mezuak" style="color:blue; margin-top: 10px;" />
 		</h:form>
 	</h:body>
 </f:view>
