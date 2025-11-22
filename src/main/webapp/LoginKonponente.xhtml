@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui">
+<ui:composition>
+
+<f:view>
+	<h:head>
+		<title>JavaServer Faces aplikazioa</title>
+	</h:head>
+
+	<h:body>
+		<h:form id="nireForm">
+			<h3>Mesedez, sartu izena eta pasahitza (1 eta 500-en arteko zenbakia)</h3>
+			<table>
+				<tr>
+					<td>Izena:</td>
+					<td>
+						<h:inputText id="izen" value="#{Login.izena}">
+							<f:validateRegex pattern="^(([a-z]|[A-Z])+[0-9]?)$" />
+						</h:inputText>
+					</td>
+					<td><h:message for="izen" style="color:red" /></td>
+				</tr>
+				<tr>
+					<td>Pasahitza:</td>
+					<td>
+						<h:inputSecret id="pass" redisplay="true" value="#{Login.pasahitza}">
+							<f:validateLongRange minimum="1" maximum="500" />
+						</h:inputSecret>
+					</td>
+					<td><h:message for="pass" style="color:red" /></td>
+				</tr>
+				<tr>
+					<td>Data (PrimeFaces-ekin):</td>
+					<td>
+						<p:calendar id="data" value="#{Login.data}" navigator="true" mode="inline" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<h3>Erabiltzailearen mota: </h3>
+					</td>
+					<td>
+						<h:selectOneMenu id="zerrenda" value="#{Login.mota}" converter="omnifaces.SelectItemsConverter">
+							<f:selectItems value="#{Login.motak}" var="motaItem" 
+								itemLabel="#{motaItem.erabMota}" itemValue="#{motaItem}"/>
+							<f:ajax event="change" listener="#{Login.listener}" 
+								render="mezuak aukeratua taulaPF"/>
+						</h:selectOneMenu>
+					</td>
+				</tr>
+				<tr>
+					<td>Hautatu zerrendatik:</td>
+					
+					<td>
+						<h:outputText id="aukeratua" value="Aukeratuta: #{Login.mota.erabMota}" style="color:red" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<h:dataTable id="taula" value="#{Login.motak}" var="item" border="1" style="margin: 10px 0;">
+							<f:facet name="header">Erabiltzaileen motak:</f:facet>
+							<h:column>
+								<f:facet name="header">Kodea</f:facet>
+								#{item.kodea}
+							</h:column>
+							<h:column>
+								<f:facet name="header">Mota</f:facet>
+								#{item.erabMota} 
+							</h:column>
+							<h:column>
+								<f:facet name="header">Ekintzak</f:facet>
+								<h:commandButton value="Aukeratu" action="#{Login.setMota(item)}"/>
+							</h:column>
+						</h:dataTable>
+					</td>
+					<td>
+						<p:dataTable id="taulaPF" value="#{Login.motak}" var="item" 
+							selectionMode="single" selection="#{Login.mota}" border="1" rowKey="#{item.kodea}">
+							<p:ajax event="rowSelect" listener="#{Login.onEventSelect}" 
+								update=":nireForm:aukeratua :nireForm:mezuak :nireForm:zerrenda"/>
+							<f:facet name="header">Erabiltzaileen motak:</f:facet>
+							<p:column headerText="Kodea">#{item.kodea}</p:column>
+							<p:column headerText="Mota">#{item.erabMota}</p:column>
+						</p:dataTable></td>
+				</tr>
+			</table>
+			<p>
+				<h:commandButton value="Onartu" action="#{Login.egiaztatu}" />
+				<h:commandButton value="Pirata" action="error" immediate="true"
+					onclick="if (!confirm('Ziur zaude?')) return false" />
+			</p>
+
+			<h:messages id="mezuak" style="color:blue" />
+		</h:form>
+	</h:body>
+</f:view>
+ </ui:composition>
+</html>

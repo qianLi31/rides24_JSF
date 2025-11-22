@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Create Ride</title>
+</h:head>
+
+<h:body>
+<h:form id="form">
+
+    <h2>Create Ride</h2>
+
+    <!-- Mezua -->
+    <h:messages id="msgs" style="color:red" />
+
+    <h:panelGrid columns="2" columnClasses="label,value" cellpadding="5">
+
+        <!-- ORIGIN -->
+        <h:outputLabel for="origin" value="Leaving from:" />
+        <p:inputText id="origin" value="#{createRideBean.origin}" />
+
+        <!-- DESTINATION -->
+        <h:outputLabel for="destination" value="Going to:" />
+        <p:inputText id="destination" value="#{createRideBean.destination}" />
+
+        <!-- SEATS -->
+        <h:outputLabel for="seats" value="Number of seats:" />
+        <p:inputText id="seats" value="#{createRideBean.seats}" />
+
+        <!-- PRICE -->
+        <h:outputLabel for="price" value="Price:" />
+        <p:inputText id="price" value="#{createRideBean.price}" />
+
+        <!-- DATE -->
+        <h:outputLabel for="date" value="Ride date:" />
+        <p:datePicker id="date" value="#{createRideBean.date}" showIcon="true" />
+
+    </h:panelGrid>
+
+    <br/>
+
+    <p:commandButton value="Create Ride"
+                     action="#{createRideBean.createRide}"
+                     update="@form" />
+
+    <p:commandButton value="Close"
+                     action="#{createRideBean.close}"
+                     update="@form" />
+
+</h:form>
+</h:body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Find Rides</title>
+</h:head>
+
+<h:body>
+
+<h:form id="form">
+
+    <h2>Find Rides</h2>
+    
+    <!-- 调试信息 -->
+    <p>Debug Info:</p>
+    <p>From value: [#{queryRidesBean.from}]</p>
+    <p>To value: [#{queryRidesBean.to}]</p>
+    <p>Selected Origin: [#{queryRidesBean.selectedOrigin}]</p>
+    <p>Selected Destination: [#{queryRidesBean.selectedDestination}]</p>
+
+    <!-- Messages -->
+    <h:messages id="msgs" style="color:red; margin-bottom:10px;" />
+
+    <p:panelGrid columns="2" columnClasses="label,value" style="margin-bottom:20px" cellpadding="5">
+
+        <!-- ORIGIN -->
+        <h:outputText value="From:" />
+        <p:selectOneMenu id="origin"
+                         value="#{queryRidesBean.selectedOrigin}"
+                         style="width:220px">
+            <f:selectItems value="#{queryRidesBean.origins}" />
+        </p:selectOneMenu>
+
+        <!-- DESTINATION -->
+        <h:outputText value="To:" />
+        <p:selectOneMenu id="destination"
+                         value="#{queryRidesBean.selectedDestination}"
+                         style="width:220px">
+            <f:selectItems value="#{queryRidesBean.origins}" />
+        </p:selectOneMenu>
+
+        <!-- DATE -->
+        <h:outputText value="Date:" />
+        <p:datePicker id="date" value="#{queryRidesBean.selectedDate}" showIcon="true" />
+
+    </p:panelGrid>
+
+    <!-- SEARCH BUTTON -->
+    <p:commandButton value="Search" action="#{queryRidesBean.searchRides}" />
+
+    <!-- CLOSE BUTTON -->
+    <p:commandButton value="Close" action="#{queryRidesBean.close}" />
+
+</h:form>
+
+</h:body>
+</html>
