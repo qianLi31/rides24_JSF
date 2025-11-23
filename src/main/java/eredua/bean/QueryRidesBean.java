@@ -71,8 +71,7 @@ public class QueryRidesBean implements Serializable {
     public void onArrivalCityChange() {
         System.out.println("Arrival city changed to: " + selectedArrivalCity);
         if (selectedArrivalCity != null && !selectedArrivalCity.isEmpty()) {
-            loadDatesWithRides();
-            searchRides();
+            refreshAllData(); // GEHITU
         }
     }
 
@@ -86,8 +85,7 @@ public class QueryRidesBean implements Serializable {
                 if (!arrivalCities.isEmpty()) {
                     this.selectedArrivalCity = arrivalCities.get(0);
                     System.out.println("Auto-selected arrival city: " + selectedArrivalCity);
-                    loadDatesWithRides();
-                    searchRides();
+                    refreshAllData(); // ALDATU (aurretik loadDatesWithRides() eta searchRides() deitzen zen)
                 } else {
                     this.selectedArrivalCity = null;
                     this.datesWithRides = null;
@@ -107,7 +105,7 @@ public class QueryRidesBean implements Serializable {
                 
                 BLFacade facadeBL = FacadeBean.getBusinessLogic();
                 
-                // Datuak lortu
+                // Datuak lortu (hautatutako datarekin, ez gaurkoarekin)
                 this.datesWithRides = facadeBL.getThisMonthDatesWithRides(
                     selectedDepartCity, selectedArrivalCity, selectedDate);
                 
@@ -149,12 +147,7 @@ public class QueryRidesBean implements Serializable {
         this.selectedDate = getDateWithoutTime(selectedDate);
         System.out.println("Cleaned date: " + selectedDate);
         
-        // Datuak eguneratu
-        loadDatesWithRides();
-        searchRides();
-        
-        // Debug informazioa
-        debugDates();
+        refreshAllData(); // ALDATU (aurretik loadDatesWithRides() eta searchRides() deitzen zen)
     }
 
     public void searchRides() {
@@ -168,9 +161,20 @@ public class QueryRidesBean implements Serializable {
                 System.out.println("Searching rides for: " + selectedDepartCity + " to " + selectedArrivalCity + " on " + selectedDate);
                 
                 BLFacade facadeBL = FacadeBean.getBusinessLogic();
-                this.filteredRides = facadeBL.getRides(selectedDepartCity, selectedArrivalCity, selectedDate);
+                
+                // Datuak lortzeko data garbitua erabili
+                Date cleanDate = getDateWithoutTime(selectedDate);
+                this.filteredRides = facadeBL.getRides(selectedDepartCity, selectedArrivalCity, cleanDate);
                 
                 System.out.println("Found " + (filteredRides != null ? filteredRides.size() : 0) + " rides");
+                
+                // Debug: ride bakoitzaren data erakutsi
+                if (filteredRides != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    for (Ride ride : filteredRides) {
+                        System.out.println("Ride date: " + sdf.format(ride.getDate()) + " by " + ride.getDriver().getName());
+                    }
+                }
                 
                 if (filteredRides == null || filteredRides.isEmpty()) {
                     showInfo("No rides found for " + selectedDepartCity + " to " + selectedArrivalCity + " on selected date");
@@ -200,6 +204,15 @@ public class QueryRidesBean implements Serializable {
         } else {
             System.out.println("No dates with rides");
         }
+        
+        if (filteredRides != null) {
+            System.out.println("Filtered rides count: " + filteredRides.size());
+            SimpleDateFormat sdfSimple = new SimpleDateFormat("yyyy-MM-dd");
+            for (int i = 0; i < filteredRides.size(); i++) {
+                Ride ride = filteredRides.get(i);
+                System.out.println("Ride " + i + " date: " + sdfSimple.format(ride.getDate()));
+            }
+        }
         System.out.println("======================");
     }
 
@@ -211,16 +224,6 @@ public class QueryRidesBean implements Serializable {
     private void showInfo(String message) {
         FacesContext.getCurrentInstance().addMessage(null,
             new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", message));
-    }
-
-    // DEBUG INFO METODOA
-    public String getDebugInfo() {
-        String dateStr = selectedDate != null ? selectedDate.toString() : "null";
-        int datesWithRidesCount = datesWithRides != null ? datesWithRides.size() : 0;
-        int filteredRidesCount = filteredRides != null ? filteredRides.size() : 0;
-        
-        return String.format("Depart: %s, Arrival: %s, Date: %s, DatesWithRides: %d, FilteredRides: %d",
-            selectedDepartCity, selectedArrivalCity, dateStr, datesWithRidesCount, filteredRidesCount);
     }
 
     // Getter eta Setter metodoak
@@ -250,4 +253,12 @@ public class QueryRidesBean implements Serializable {
 
     public List<Date> getDatesWithRides() { return datesWithRides; }
     public void setDatesWithRides(List<Date> datesWithRides) { this.datesWithRides = datesWithRides; }
+    
+    
+ // Datuak guztiz eguneratzeko metodoa GEHITU
+    public void refreshAllData() {
+        System.out.println("Refreshing all data...");
+        loadDatesWithRides();
+        searchRides();
+    }
 }
