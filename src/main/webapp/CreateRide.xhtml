@@ -22,7 +22,7 @@
 					<td>Depart City:</td>
 					<td>
 						<h:inputText id="departCity" value="#{createRideBean.origin}">
-							<f:validateRegex pattern="^[a-zA-ZñÑçÇáéíóúÁÉÍÓÚ\s]+$" />
+							<f:validateRegex pattern="^[a-zA-ZñÑçÇáéíóúÁÉÍÓÚV\s]+$" />
 						</h:inputText>
 					</td>
 					<td><h:message for="departCity" style="color:red" /></td>
@@ -31,7 +31,7 @@
 					<td>Arrival City:</td>
 					<td>
 						<h:inputText id="arrivalCity"  value="#{createRideBean.destination}">
-							<f:validateRegex pattern="^[a-zA-ZñÑçÇáéíóúÁÉÍÓÚ\s]+$" />
+							<f:validateRegex pattern="^[a-zA-ZñÑçÇáéíóúÁÉÍÓÚV\s]+$" />
 						</h:inputText>
 					</td>
 					<td><h:message for="arrivalCity" style="color:red" /></td>
