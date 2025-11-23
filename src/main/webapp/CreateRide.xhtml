@@ -64,9 +64,6 @@
 			
 			<p>
 				<h:commandButton value="Create Ride" action="#{createRideBean.createRide}" />
-				<h:commandButton value="TEST" action="#{createRideBean.test}">
-					<f:ajax execute="@form" render="sartutakoDatuak mezuak" />
-				</h:commandButton>
 			</p>
 
 			<!-- Datuak erakusteko - WEB-ean agertuko da -->
@@ -83,6 +80,10 @@
 
 			<h:messages id="mezuak" style="color:blue; margin-top: 10px;" />
 		</h:form>
+		
+		<h4>TO QUERY RIDES:</h4>
+ 		<h:link value="- QueryRides" outcome="QueryRides" />
+		
 	</h:body>
 </f:view>
  </ui:composition>

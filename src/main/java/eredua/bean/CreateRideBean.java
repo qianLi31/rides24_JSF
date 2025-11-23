@@ -57,50 +57,30 @@ public class CreateRideBean implements Serializable {
 	public void setDatua(String datua) { this.datua = datua; }
 
 	public void createRide() {
-		try {
-			// Lortu BLFacade instantzia FacadeBean bidez
-			this.facadeBL = FacadeBean.getBusinessLogic();
+	    try {
+	        this.facadeBL = FacadeBean.getBusinessLogic();
+	        
+	        // DEBUG: Datuak erakutsi
+	        System.out.println("=== CREATING RIDE ===");
+	        System.out.println("Origin: " + origin);
+	        System.out.println("Destination: " + destination);
+	        System.out.println("Date: " + date);
+	        System.out.println("Seats: " + seats);
+	        System.out.println("Price: " + price);
+	        System.out.println("Driver Email: " + driverEmail);
+	        
+	        Ride newRide = facadeBL.createRide(origin, destination, date, seats, price, driverEmail);
 
-			// Sortu ride-a BLFacade erabiliz
-			Ride newRide = facadeBL.createRide(origin, destination, date, seats, price, driverEmail);
+	        // DEBUG: Ride-a sortu ondoren
+	        System.out.println("Ride created successfully: " + newRide);
+	        System.out.println("Ride ID: " + (newRide != null ? newRide.getRideNumber() : "null"));
+	        System.out.println("=====================");
 
-			// Ride-a ondo sortu bada, mezu positiboa erakutsi
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_INFO, 
-							"Ride successfully created!", 
-							"Ride from " + origin + " to " + destination + " on " + date + " has been created."));
-
-			// Datuak erakutsi
-			this.datua = "Ride successfully created! " + origin + " --> " + destination + 
-					", date: " + date + ", number of seats: " + seats + ", price: " + price;
-
-			// Formularioa garbitu (aukerakoa)
-			// clearForm();
-		} catch (RideMustBeLaterThanTodayException e) {
-			// Data gaizki dagoen kasurako
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-							"Error creating ride", 
-							"Ride date must be later than today."));
-			this.datua = "Error: Ride date must be later than today.";
-
-		} catch (RideAlreadyExistException e) {
-			// Ride-a existitzen den kasurako
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-							"Error creating ride", 
-							"A ride with the same details already exists for this driver."));
-			this.datua = "Error: A ride with the same details already exists for this driver.";
-
-		} catch (Exception e) {
-			// Beste errore batzuk
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, 
-							"Error creating ride", 
-							"An unexpected error occurred: " + e.getMessage()));
-			this.datua = "Error: An unexpected error occurred while creating the ride.";
-			e.printStackTrace();
-		}
+	        // Rest of the code...
+	    } catch (Exception e) {
+	        System.out.println("ERROR creating ride: " + e.getMessage());
+	        e.printStackTrace();
+	    }
 	}
 
 	public String close() {
