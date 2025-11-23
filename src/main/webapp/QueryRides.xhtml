@@ -2,85 +2,134 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:o="http://omnifaces.org/ui">
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:o="http://omnifaces.org/ui">
 <ui:composition>
 
 <f:view>
-	<h:head>
-		<title>QUERY RIDES</title>
-	</h:head>
+    <h:head>
+        <title>QUERY RIDES</title>
+    </h:head>
 
-	<h:body>
-		<h:form id="nireForm">
-			<h3>QUERY RIDES</h3>
-			<table>
-				<tr>
-					<td>
-						<h3>Depart City </h3>
-					</td>
-					<td>
-						<h:selectOneMenu id="departCity" value="#{Login.mota}" converter="omnifaces.SelectItemsConverter">
-							<f:selectItems value="#{Login.motak}" var="motaItem" 
-								itemLabel="#{motaItem.erabMota}" itemValue="#{motaItem}"/>
-							<f:ajax event="change" listener="#{Login.listener}" 
-								render="mezuak aukeratua taulaPF"/>
-						</h:selectOneMenu>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<h3>Arrival City</h3>
-					</td>
-					<td>
-						<h:selectOneMenu id="arrivalCity" value="#{Login.mota}" converter="omnifaces.SelectItemsConverter">
-							<f:selectItems value="#{Login.motak}" var="motaItem" 
-								itemLabel="#{motaItem.erabMota}" itemValue="#{motaItem}"/>
-							<f:ajax event="change" listener="#{Login.listener}" 
-								render="mezuak aukeratua taulaPF"/>
-						</h:selectOneMenu>
-					</td>
-				</tr>
-				
-				<tr>
-					<td>Data: </td>
-					<td>
-						<p:calendar id="data" value="#{Login.data}" navigator="true" mode="inline" />
-					</td>
-				</tr>
-					
-				<tr>
-					<td>
-						<h:dataTable id="taula" value="#{Login.motak}" var="item" border="1" style="margin: 10px 0;">
-							<f:facet name="header">Rides</f:facet>
-							<h:column>
-								<f:facet name="header">Driver</f:facet>
-								#{item.kodea}
-							</h:column>
-							<h:column>
-								<f:facet name="header">Seats</f:facet>
-								#{item.erabMota} 
-							</h:column>
-							<h:column>
-								<f:facet name="header">Price</f:facet>
-								<h:commandButton value="Aukeratu" action="#{Login.setMota(item)}"/>
-							</h:column>
-						</h:dataTable>
-					</td> 	
-				</tr>
-				
-			</table>
-			<p>
-				<h:commandButton value="Pirata" action="error" immediate="true"
-					onclick="if (!confirm('Ziur zaude?')) return false" />
-			</p>
+    <h:body>
+        <h:form id="nireForm">
+            <h3>QUERY RIDES</h3>
+            <table>
+                <tr>
+                    <td>
+                        <h3>Depart City</h3>
+                    </td>
+                    <td>
+                        <h:selectOneMenu id="departCity" value="#{queryRidesBean.departCity}">
+                            <f:selectItem itemValue="" itemLabel="Select depart city" />
+                            <f:selectItems value="#{queryRidesBean.departCities}" />
+                            <f:ajax event="change" execute="@this" render="arrivalCity ridesTable messages" />
+                        </h:selectOneMenu>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h3>Arrival City</h3>
+                    </td>
+                    <td>
+                        <h:selectOneMenu id="arrivalCity" value="#{queryRidesBean.arrivalCity}">
+                            <f:selectItem itemValue="" itemLabel="Select arrival city" />
+                            <f:selectItems value="#{queryRidesBean.arrivalCities}" />
+                        </h:selectOneMenu>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>Date: </td>
+                    <td>
+                        <p:calendar id="data" value="#{queryRidesBean.date}" 
+                                   navigator="true" mode="popup" 
+                                   pattern="yyyy-MM-dd" />
+                    </td>
+                </tr>
+                    
+                <tr>
+                    <td colspan="2">
+                        <h:commandButton value="Search Rides" action="#{queryRidesBean.searchRides}">
+                            <f:ajax execute="@form" render="ridesTable messages" />
+                        </h:commandButton>
+                    </td>
+                </tr>
+            </table>
 
-			<h:messages id="mezuak" style="color:blue" />
-		</h:form>
-	</h:body>
+            <!-- Rides taula -->
+            <h:dataTable id="ridesTable" value="#{queryRidesBean.rides}" var="ride" 
+                        border="1" style="margin: 20px 0; width: 100%;" 
+                        rendered="#{not empty queryRidesBean.rides}">
+                <f:facet name="header">
+                    <h:outputText value="Available Rides" style="font-weight: bold; font-size: 16px;" />
+                </f:facet>
+                
+                <h:column>
+                    <f:facet name="header">Driver</f:facet>
+                    #{ride.driver.name}
+                </h:column>
+                
+                <h:column>
+                    <f:facet name="header">From</f:facet>
+                    #{ride.from}
+                </h:column>
+                
+                <h:column>
+                    <f:facet name="header">To</f:facet>
+                    #{ride.to}
+                </h:column>
+                
+                <h:column>
+                    <f:facet name="header">Date</f:facet>
+                    <h:outputText value="#{ride.date}">
+                        <f:convertDateTime pattern="yyyy-MM-dd" />
+                    </h:outputText>
+                </h:column>
+                
+                <h:column>
+                    <f:facet name="header">Available Seats</f:facet>
+                    #{ride.nPlaces}
+                </h:column>
+                
+                <h:column>
+                    <f:facet name="header">Price (€)</f:facet>
+                    #{ride.price}
+                </h:column>
+                
+                <h:column>
+                    <f:facet name="header">Actions</f:facet>
+                    <h:commandButton value="Book" styleClass="btn-book" 
+                                   onclick="alert('Booking functionality to be implemented'); return false;" />
+                </h:column>
+            </h:dataTable>
+
+            <!-- Mezua no rides found -->
+            <h:panelGroup rendered="#{empty queryRidesBean.rides and queryRidesBean.departCity != null and queryRidesBean.arrivalCity != null}">
+                <h:outputText value="No rides found for the selected criteria." 
+                            style="color: orange; font-style: italic; margin: 20px 0;" />
+            </h:panelGroup>
+
+            <h:messages id="messages" style="color:blue; margin-top: 10px;" />
+        </h:form>
+        
+        <style>
+            .btn-book {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                cursor: pointer;
+                border-radius: 3px;
+            }
+            .btn-book:hover {
+                background-color: #45a049;
+            }
+        </style>
+    </h:body>
 </f:view>
- </ui:composition>
+</ui:composition>
 </html>

@@ -28,9 +28,10 @@ public class CreateRideBean implements Serializable {
 
 	public CreateRideBean() {
 		this.date = new Date();
-		//this.facadeBL = FacadeBean.getBusinessLogic();
-		//facadeBL.initializeBD();
 	}
+	
+	public String getDriverEmail() { return driverEmail; }
+	public void setDriverEmail(String driverEmail) { this.driverEmail = driverEmail; }
 
 	public Integer getSeats() { return seats; }
 	public void setSeats(Integer seats) { this.seats = seats; }
@@ -56,43 +57,50 @@ public class CreateRideBean implements Serializable {
 	public void setDatua(String datua) { this.datua = datua; }
 
 	public void createRide() {
-//		try {
-//			// Datuak balioztatu
-//			if (origin == null || origin.isEmpty() || destination == null || destination.isEmpty() || 
-//				date == null || seats == null || seats < 1) {
-//				FacesContext.getCurrentInstance().addMessage(null,
-//					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "All fields are required and must be valid"));
-//				
-//			}
-//			
-//			// Ride-a sortu
-//			facadeBL.createRide(origin, destination, date, seats, price, driverEmail);
-//			
-//			// Mezua erakutsi
-//			FacesContext.getCurrentInstance().addMessage(null,
-//				new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Ride created successfully!"));
-//			
-//			// Datuak erakutsi
-//			this.datua = "Ride Created: " + origin + " --> " + destination + 
-//						", Date: " + date + ", Seats: " + seats + ", Price: " + price;
-//			
-//			System.out.println("Bidaia sortu da: " + origin + " -> " + destination);
-//			
-//			
-//			
-//		} catch (RideMustBeLaterThanTodayException e) {
-//			FacesContext.getCurrentInstance().addMessage(null,
-//				new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Date must be later than today"));
-//		
-//		} catch (RideAlreadyExistException e) {
-//			FacesContext.getCurrentInstance().addMessage(null,
-//				new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Ride already exists"));
-//			
-//		} catch (Exception e) {
-//			FacesContext.getCurrentInstance().addMessage(null,
-//				new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Unexpected error: " + e.getMessage()));
-//			
-//		}
+		try {
+			// Lortu BLFacade instantzia FacadeBean bidez
+			this.facadeBL = FacadeBean.getBusinessLogic();
+
+			// Sortu ride-a BLFacade erabiliz
+			Ride newRide = facadeBL.createRide(origin, destination, date, seats, price, driverEmail);
+
+			// Ride-a ondo sortu bada, mezu positiboa erakutsi
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_INFO, 
+							"Ride successfully created!", 
+							"Ride from " + origin + " to " + destination + " on " + date + " has been created."));
+
+			// Datuak erakutsi
+			this.datua = "Ride successfully created! " + origin + " --> " + destination + 
+					", date: " + date + ", number of seats: " + seats + ", price: " + price;
+
+			// Formularioa garbitu (aukerakoa)
+			// clearForm();
+		} catch (RideMustBeLaterThanTodayException e) {
+			// Data gaizki dagoen kasurako
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+							"Error creating ride", 
+							"Ride date must be later than today."));
+			this.datua = "Error: Ride date must be later than today.";
+
+		} catch (RideAlreadyExistException e) {
+			// Ride-a existitzen den kasurako
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+							"Error creating ride", 
+							"A ride with the same details already exists for this driver."));
+			this.datua = "Error: A ride with the same details already exists for this driver.";
+
+		} catch (Exception e) {
+			// Beste errore batzuk
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, 
+							"Error creating ride", 
+							"An unexpected error occurred: " + e.getMessage()));
+			this.datua = "Error: An unexpected error occurred while creating the ride.";
+			e.printStackTrace();
+		}
 	}
 
 	public String close() {
@@ -108,7 +116,7 @@ public class CreateRideBean implements Serializable {
 		// Datuak gorde datua atributuan
 		this.datua = datuak;
 	}
-	
+
 	public void onDateSelect(SelectEvent event) {
 		this.date = (Date) event.getObject();
 		FacesContext.getCurrentInstance().addMessage(null,
