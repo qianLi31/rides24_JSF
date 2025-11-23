@@ -3,6 +3,9 @@ package eredua.bean;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 import businessLogic.BLFacade;
 import domain.Ride;
@@ -14,88 +17,237 @@ import jakarta.inject.Named;
 @Named("queryRidesBean")
 @SessionScoped
 public class QueryRidesBean implements Serializable {
-    private String departCity;
-    private String arrivalCity;
-    private Date date;
-    private List<Ride> rides;
+    private String selectedDepartCity;
+    private String selectedArrivalCity;
+    private Date selectedDate;
+    private List<Ride> filteredRides;
+    
     private List<String> departCities;
     private List<String> arrivalCities;
+    private List<Date> datesWithRides;
 
     public QueryRidesBean() {
-        this.date = new Date();
-        loadDepartCities();
+        this.selectedDate = getDateWithoutTime(new Date());
+        System.out.println("QueryRidesBean initialized with date: " + selectedDate);
+        loadInitialData();
     }
 
-    public void loadDepartCities() {
+    // Data baten orduak kentzeko metodoa
+    private Date getDateWithoutTime(Date date) {
+        if (date == null) return null;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    private void loadInitialData() {
         try {
             BLFacade facadeBL = FacadeBean.getBusinessLogic();
+            
             this.departCities = facadeBL.getDepartCities();
+            System.out.println("Loaded depart cities: " + departCities);
+            
+            if (!departCities.isEmpty()) {
+                this.selectedDepartCity = departCities.get(0);
+                System.out.println("Auto-selected depart city: " + selectedDepartCity);
+                loadArrivalCities();
+            }
+            
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Error loading depart cities"));
+            showError("Error loading initial data");
             e.printStackTrace();
         }
     }
 
     public void onDepartCityChange() {
+        System.out.println("Depart city changed to: " + selectedDepartCity);
+        loadArrivalCities();
+    }
+
+    public void onArrivalCityChange() {
+        System.out.println("Arrival city changed to: " + selectedArrivalCity);
+        if (selectedArrivalCity != null && !selectedArrivalCity.isEmpty()) {
+            loadDatesWithRides();
+            searchRides();
+        }
+    }
+
+    private void loadArrivalCities() {
         try {
-            if (departCity != null && !departCity.isEmpty()) {
+            if (selectedDepartCity != null && !selectedDepartCity.isEmpty()) {
                 BLFacade facadeBL = FacadeBean.getBusinessLogic();
-                this.arrivalCities = facadeBL.getDestinationCities(departCity);
-            } else {
-                this.arrivalCities = null;
+                this.arrivalCities = facadeBL.getDestinationCities(selectedDepartCity);
+                System.out.println("Loaded arrival cities for " + selectedDepartCity + ": " + arrivalCities);
+                
+                if (!arrivalCities.isEmpty()) {
+                    this.selectedArrivalCity = arrivalCities.get(0);
+                    System.out.println("Auto-selected arrival city: " + selectedArrivalCity);
+                    loadDatesWithRides();
+                    searchRides();
+                } else {
+                    this.selectedArrivalCity = null;
+                    this.datesWithRides = null;
+                    this.filteredRides = null;
+                }
             }
-            this.rides = null; // Garbitu ride-ak
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Error loading arrival cities"));
+            showError("Error loading arrival cities");
             e.printStackTrace();
         }
+    }
+
+    private void loadDatesWithRides() {
+        try {
+            if (selectedDepartCity != null && !selectedDepartCity.isEmpty() &&
+                selectedArrivalCity != null && !selectedArrivalCity.isEmpty()) {
+                
+                BLFacade facadeBL = FacadeBean.getBusinessLogic();
+                
+                // Datuak lortu
+                this.datesWithRides = facadeBL.getThisMonthDatesWithRides(
+                    selectedDepartCity, selectedArrivalCity, selectedDate);
+                
+                System.out.println("Raw dates with rides for " + selectedDepartCity + " to " + selectedArrivalCity + ": " + datesWithRides);
+                
+                // Debug informazioa
+                if (datesWithRides != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    System.out.println("Formatted dates with rides:");
+                    for (Date d : datesWithRides) {
+                        System.out.println("  - " + sdf.format(d));
+                    }
+                }
+            } else {
+                this.datesWithRides = null;
+            }
+        } catch (Exception e) {
+            showError("Error loading dates with rides");
+            e.printStackTrace();
+        }
+    }
+
+    // UI-rako data formaturik onena itzultzeko metodoa
+    public List<String> getDatesWithRidesFormatted() {
+        List<String> formattedDates = new ArrayList<>();
+        if (datesWithRides != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            for (Date date : datesWithRides) {
+                formattedDates.add(sdf.format(date));
+            }
+        }
+        return formattedDates;
+    }
+
+    public void onDateSelect() {
+        System.out.println("Date selected: " + selectedDate);
+        
+        // Data garbitu
+        this.selectedDate = getDateWithoutTime(selectedDate);
+        System.out.println("Cleaned date: " + selectedDate);
+        
+        // Datuak eguneratu
+        loadDatesWithRides();
+        searchRides();
+        
+        // Debug informazioa
+        debugDates();
     }
 
     public void searchRides() {
         try {
-            if (departCity == null || departCity.isEmpty() || 
-                arrivalCity == null || arrivalCity.isEmpty() || 
-                date == null) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "Please select all fields"));
-                return;
-            }
-
-            BLFacade facadeBL = FacadeBean.getBusinessLogic();
-            this.rides = facadeBL.getRides(departCity, arrivalCity, date);
+            this.filteredRides = null;
             
-            if (rides.isEmpty()) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "No rides found for the selected criteria"));
+            if (selectedDepartCity != null && !selectedDepartCity.isEmpty() &&
+                selectedArrivalCity != null && !selectedArrivalCity.isEmpty() &&
+                selectedDate != null) {
+                
+                System.out.println("Searching rides for: " + selectedDepartCity + " to " + selectedArrivalCity + " on " + selectedDate);
+                
+                BLFacade facadeBL = FacadeBean.getBusinessLogic();
+                this.filteredRides = facadeBL.getRides(selectedDepartCity, selectedArrivalCity, selectedDate);
+                
+                System.out.println("Found " + (filteredRides != null ? filteredRides.size() : 0) + " rides");
+                
+                if (filteredRides == null || filteredRides.isEmpty()) {
+                    showInfo("No rides found for " + selectedDepartCity + " to " + selectedArrivalCity + " on selected date");
+                }
             }
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Error searching rides"));
+            showError("Error searching rides");
             e.printStackTrace();
         }
     }
 
-    // Getter eta Setter metodoak
-    public String getDepartCity() { return departCity; }
-    public void setDepartCity(String departCity) { 
-        this.departCity = departCity;
-        this.onDepartCityChange();
+    // Datuak debug egiteko metodoa
+    public void debugDates() {
+        System.out.println("=== DATE DEBUG INFO ===");
+        System.out.println("Selected Date: " + selectedDate);
+        System.out.println("Selected Date (clean): " + getDateWithoutTime(selectedDate));
+        
+        if (datesWithRides != null) {
+            System.out.println("Dates with rides count: " + datesWithRides.size());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat sdfSimple = new SimpleDateFormat("yyyy-MM-dd");
+            
+            for (int i = 0; i < datesWithRides.size(); i++) {
+                Date d = datesWithRides.get(i);
+                System.out.println("Date " + i + ": " + sdf.format(d) + " -> " + sdfSimple.format(d));
+            }
+        } else {
+            System.out.println("No dates with rides");
+        }
+        System.out.println("======================");
     }
 
-    public String getArrivalCity() { return arrivalCity; }
-    public void setArrivalCity(String arrivalCity) { this.arrivalCity = arrivalCity; }
+    private void showError(String message) {
+        FacesContext.getCurrentInstance().addMessage(null,
+            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", message));
+    }
 
-    public Date getDate() { return date; }
-    public void setDate(Date date) { this.date = date; }
+    private void showInfo(String message) {
+        FacesContext.getCurrentInstance().addMessage(null,
+            new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", message));
+    }
 
-    public List<Ride> getRides() { return rides; }
-    public void setRides(List<Ride> rides) { this.rides = rides; }
+    // DEBUG INFO METODOA
+    public String getDebugInfo() {
+        String dateStr = selectedDate != null ? selectedDate.toString() : "null";
+        int datesWithRidesCount = datesWithRides != null ? datesWithRides.size() : 0;
+        int filteredRidesCount = filteredRides != null ? filteredRides.size() : 0;
+        
+        return String.format("Depart: %s, Arrival: %s, Date: %s, DatesWithRides: %d, FilteredRides: %d",
+            selectedDepartCity, selectedArrivalCity, dateStr, datesWithRidesCount, filteredRidesCount);
+    }
+
+    // Getter eta Setter metodoak
+    public String getSelectedDepartCity() { return selectedDepartCity; }
+    public void setSelectedDepartCity(String selectedDepartCity) { 
+        this.selectedDepartCity = selectedDepartCity;
+    }
+
+    public String getSelectedArrivalCity() { return selectedArrivalCity; }
+    public void setSelectedArrivalCity(String selectedArrivalCity) { 
+        this.selectedArrivalCity = selectedArrivalCity;
+    }
+
+    public Date getSelectedDate() { return selectedDate; }
+    public void setSelectedDate(Date selectedDate) { 
+        this.selectedDate = getDateWithoutTime(selectedDate);
+    }
+
+    public List<Ride> getFilteredRides() { return filteredRides; }
+    public void setFilteredRides(List<Ride> filteredRides) { this.filteredRides = filteredRides; }
 
     public List<String> getDepartCities() { return departCities; }
     public void setDepartCities(List<String> departCities) { this.departCities = departCities; }
 
     public List<String> getArrivalCities() { return arrivalCities; }
     public void setArrivalCities(List<String> arrivalCities) { this.arrivalCities = arrivalCities; }
+
+    public List<Date> getDatesWithRides() { return datesWithRides; }
+    public void setDatesWithRides(List<Date> datesWithRides) { this.datesWithRides = datesWithRides; }
 }
