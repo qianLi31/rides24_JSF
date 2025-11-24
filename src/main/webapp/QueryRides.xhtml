@@ -127,7 +127,7 @@
                     <h:dataTable value="#{queryRidesBean.datesWithRidesFormatted}" var="formattedDate" 
                                style="display: inline-block; margin-left: 10px;">
                         <h:column>
-                            <h:outputText value="#{formattedDate}" />
+                            <h:outputText value="#{formattedDate}" timeZone="Europe/Madrid" />
                         </h:column>
                     </h:dataTable>
                 </div>

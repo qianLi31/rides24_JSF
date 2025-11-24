@@ -30,6 +30,11 @@ public class CreateRideBean implements Serializable {
 		this.date = new Date();
 	}
 	
+	public void toFloat() {
+		this.price=(float)this.price;
+		
+	}
+	
 	public String getDriverEmail() { return driverEmail; }
 	public void setDriverEmail(String driverEmail) { this.driverEmail = driverEmail; }
 
